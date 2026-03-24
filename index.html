@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Retro Field Guides</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f1a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Field Guides">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --gb-darkest: #0f1a0f;
+    --gb-dark: #1a3a1a;
+    --gb-mid: #2d6a2d;
+    --gb-light: #5a9e3a;
+    --gb-lighter: #8bcc50;
+    --gb-lightest: #c8e870;
+    --gb-screen-bg: #9bbc0f;
+    --gb-screen-shadow: #306230;
+    --gb-screen-dark: #0f380f;
+    --gb-screen-mid: #8bac0f;
+    --scanline-color: rgba(15, 56, 15, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--gb-darkest);
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--gb-screen-dark);
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      var(--scanline-color) 3px,
+      var(--scanline-color) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  .screen-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--gb-screen-bg);
+    border: 6px solid var(--gb-screen-dark);
+    box-shadow:
+      inset 0 0 40px rgba(15,56,15,0.3),
+      0 0 60px rgba(139,204,80,0.15),
+      0 8px 32px rgba(0,0,0,0.8);
+    position: relative;
+    padding: 28px 32px 36px;
+  }
+
+  .screen-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 6px solid var(--gb-screen-dark);
+    clip-path: polygon(
+      12px 0%, calc(100% - 12px) 0%,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0% calc(100% - 12px), 0% 12px
+    );
+    pointer-events: none;
+  }
+
+  .site-header {
+    text-align: center;
+    border-bottom: 4px solid var(--gb-screen-dark);
+    padding-bottom: 20px;
+    margin-bottom: 28px;
+  }
+
+  .title-eyebrow {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: var(--gb-screen-shadow);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: var(--gb-screen-dark);
+    line-height: 1;
+    text-shadow: 3px 3px 0 var(--gb-screen-shadow);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 18px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 3px;
+    margin-top: 6px;
+  }
+
+  .pixel-deco {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin: 10px 0 0;
+  }
+  .pixel-deco span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gb-screen-dark);
+  }
+  .pixel-deco span:nth-child(2) { margin-top: -4px; }
+
+  .section-label {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 4px;
+    color: var(--gb-screen-shadow);
+    margin-bottom: 12px;
+  }
+
+  .guides-grid {
+    display: grid;
+    gap: 12px;
+  }
+
+  .guide-card {
+    display: block;
+    text-decoration: none;
+    border: 3px solid var(--gb-screen-dark);
+    background: rgba(15,56,15,0.06);
+    padding: 14px 16px;
+    transition: background 0.1s;
+    animation: fadeIn 0.4s ease both;
+    position: relative;
+  }
+
+  .guide-card:hover {
+    background: rgba(15,56,15,0.15);
+  }
+
+  .guide-card::after {
+    content: '▶';
+    position: absolute;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--gb-screen-shadow);
+  }
+
+  .card-platform {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--gb-screen-shadow);
+    display: block;
+    margin-bottom: 2px;
+  }
+
+  .card-title {
+    font-family: 'VT323', monospace;
+    font-size: 28px;
+    color: var(--gb-screen-dark);
+    display: block;
+    line-height: 1.1;
+  }
+
+  .card-meta {
+    font-size: 11px;
+    color: var(--gb-screen-shadow);
+    margin-top: 4px;
+    letter-spacing: 1px;
+  }
+
+  .status-badge {
+    display: inline-block;
+    background: var(--gb-screen-dark);
+    color: var(--gb-lightest);
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    padding: 1px 6px;
+    letter-spacing: 1px;
+    vertical-align: middle;
+    margin-left: 6px;
+  }
+
+  .divider {
+    height: 3px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--gb-screen-dark) 0px,
+      var(--gb-screen-dark) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    margin: 24px 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 24px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .guide-card:nth-child(1) { animation-delay: 0.05s; }
+  .guide-card:nth-child(2) { animation-delay: 0.1s; }
+  .guide-card:nth-child(3) { animation-delay: 0.15s; }
+</style>
+</head>
+<body>
+
+<div class="screen-wrapper">
+
+  <div class="site-header">
+    <span class="title-eyebrow">★ PERSONAL ★</span>
+    <h1>RETRO FIELD GUIDES</h1>
+    <div class="subtitle">QUICK-REF WALKTHROUGHS FOR ACTIVE PLAYTHROUGHS</div>
+    <div class="pixel-deco">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="section-label">— ACTIVE PLAYTHROUGHS —</div>
+
+  <div class="guides-grid">
+
+    <a class="guide-card" href="/links-awakening/">
+      <span class="card-platform">GAME BOY · 1993</span>
+      <span class="card-title">LINK'S AWAKENING<span class="status-badge">ACTIVE</span></span>
+      <div class="card-meta">8 dungeons · trading sequence · secret seashells</div>
+    </a>
+
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="footer">— SAVE BEFORE YOU QUIT —</div>
+
+</div>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+
+</body>
+</html>

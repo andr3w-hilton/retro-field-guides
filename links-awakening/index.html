@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Link's Awakening — Field Guide</title>
+<link rel="manifest" href="/manifest.json">
+<meta name="theme-color" content="#0f1a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Field Guides">
+<link rel="apple-touch-icon" href="/icons/icon-192.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --gb-darkest: #0f1a0f;
+    --gb-dark: #1a3a1a;
+    --gb-mid: #2d6a2d;
+    --gb-light: #5a9e3a;
+    --gb-lighter: #8bcc50;
+    --gb-lightest: #c8e870;
+    --gb-screen-bg: #9bbc0f;
+    --gb-screen-shadow: #306230;
+    --gb-screen-dark: #0f380f;
+    --gb-screen-mid: #8bac0f;
+    --gb-pixel: 2px;
+    --scanline-color: rgba(15, 56, 15, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--gb-darkest);
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--gb-screen-dark);
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  /* Scanline overlay on the whole page */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      var(--scanline-color) 3px,
+      var(--scanline-color) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  /* Pixel noise texture */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  .screen-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--gb-screen-bg);
+    border: 6px solid var(--gb-screen-dark);
+    box-shadow:
+      inset 0 0 40px rgba(15,56,15,0.3),
+      0 0 60px rgba(139,204,80,0.15),
+      0 0 120px rgba(139,204,80,0.05),
+      0 8px 32px rgba(0,0,0,0.8);
+    position: relative;
+    padding: 28px 32px 36px;
+    image-rendering: pixelated;
+  }
+
+  /* Corner pixels - GameBoy screen corners */
+  .screen-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 6px solid var(--gb-screen-dark);
+    clip-path: polygon(
+      12px 0%, calc(100% - 12px) 0%,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0% calc(100% - 12px), 0% 12px
+    );
+    pointer-events: none;
+  }
+
+  /* Header */
+  .game-header {
+    text-align: center;
+    border-bottom: 4px solid var(--gb-screen-dark);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .game-header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gb-screen-mid);
+  }
+
+  .title-eyebrow {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: var(--gb-screen-shadow);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: var(--gb-screen-dark);
+    line-height: 1;
+    text-shadow: 3px 3px 0 var(--gb-screen-shadow);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  /* Pixel triforce decoration */
+  .pixel-deco {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin: 10px 0 0;
+  }
+  .pixel-deco span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gb-screen-dark);
+  }
+  .pixel-deco span:nth-child(2) { margin-top: -4px; }
+
+  /* Phase sections */
+  .phase {
+    margin-bottom: 20px;
+    border: 3px solid var(--gb-screen-dark);
+    background: rgba(15,56,15,0.06);
+    position: relative;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase:nth-child(1) { animation-delay: 0.05s; }
+  .phase:nth-child(2) { animation-delay: 0.1s; }
+  .phase:nth-child(3) { animation-delay: 0.15s; }
+  .phase:nth-child(4) { animation-delay: 0.2s; }
+  .phase:nth-child(5) { animation-delay: 0.25s; }
+  .phase:nth-child(6) { animation-delay: 0.3s; }
+  .phase:nth-child(7) { animation-delay: 0.35s; }
+  .phase:nth-child(8) { animation-delay: 0.4s; }
+  .phase:nth-child(9) { animation-delay: 0.45s; }
+
+  .phase-header {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .phase-header:hover {
+    background: var(--gb-screen-shadow);
+  }
+
+  .phase-num {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: var(--gb-lightest);
+    min-width: 28px;
+  }
+
+  .phase-title {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .dungeon-badge {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    background: var(--gb-lighter);
+    color: var(--gb-screen-dark);
+    padding: 2px 7px;
+    letter-spacing: 1px;
+  }
+
+  .toggle-arrow {
+    font-size: 16px;
+    transition: transform 0.2s;
+    color: var(--gb-screen-bg);
+  }
+
+  .phase.collapsed .toggle-arrow { transform: rotate(-90deg); }
+
+  .phase-body {
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  .phase.collapsed .phase-body {
+    max-height: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  /* Step rows */
+  .step {
+    display: flex;
+    gap: 10px;
+    align-items: flex-start;
+    font-size: 13px;
+    line-height: 1.6;
+  }
+
+  .step-icon {
+    font-size: 15px;
+    min-width: 20px;
+    text-align: center;
+    margin-top: 1px;
+  }
+
+  .step-text {
+    color: var(--gb-screen-dark);
+  }
+
+  .step-text strong {
+    font-weight: normal;
+    color: var(--gb-screen-dark);
+    border-bottom: 2px solid var(--gb-screen-shadow);
+  }
+
+  /* Reward block */
+  .rewards {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    padding: 8px 10px;
+    background: var(--gb-screen-dark);
+    border-left: 4px solid var(--gb-lighter);
+    margin-top: 4px;
+  }
+
+  .reward-item {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    color: var(--gb-lightest);
+    letter-spacing: 0.5px;
+  }
+
+  .reward-item::before {
+    content: '► ';
+    color: var(--gb-lighter);
+  }
+
+  /* Warning / note boxes */
+  .note {
+    padding: 8px 10px;
+    font-size: 12px;
+    line-height: 1.5;
+    border-left: 4px solid var(--gb-screen-shadow);
+    background: rgba(15,56,15,0.12);
+    color: var(--gb-screen-shadow);
+  }
+
+  .note::before {
+    content: '! ';
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--gb-screen-dark);
+  }
+
+  /* Tips section */
+  .tips-section {
+    margin-top: 24px;
+    border: 3px solid var(--gb-screen-dark);
+    animation: fadeIn 0.4s 0.5s ease both;
+  }
+
+  .tips-header {
+    background: var(--gb-screen-shadow);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .tips-body {
+    padding: 12px 14px;
+    display: grid;
+    gap: 8px;
+  }
+
+  /* Trading sequence table */
+  .trade-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(15,56,15,0.08);
+    border: 2px solid var(--gb-screen-shadow);
+    font-size: 11px;
+    line-height: 2;
+  }
+
+  .trade-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    background: var(--gb-screen-dark);
+    color: var(--gb-lightest);
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+
+  .trade-arrow {
+    color: var(--gb-screen-shadow);
+    font-size: 14px;
+    padding: 0 2px;
+  }
+
+  /* Footer */
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+
+  /* Divider */
+  .divider {
+    height: 3px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--gb-screen-dark) 0px,
+      var(--gb-screen-dark) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    margin: 4px 0;
+  }
+
+  /* Progress tracker */
+  .progress-bar {
+    height: 8px;
+    background: var(--gb-screen-dark);
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--gb-screen-shadow);
+    width: 0%;
+    transition: width 0.5s ease;
+  }
+
+  .progress-label {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--gb-screen-shadow);
+    text-align: right;
+    margin-bottom: 4px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-wrapper">
+
+  <div class="game-header">
+    <a href="/" style="font-family:'VT323',monospace;font-size:13px;letter-spacing:3px;color:var(--gb-screen-shadow);text-decoration:none;display:block;margin-bottom:8px;opacity:0.8;">◀ ALL GUIDES</a>
+    <span class="title-eyebrow">★ FIELD GUIDE ★</span>
+    <h1>LINK'S AWAKENING</h1>
+    <div class="subtitle">GAME BOY · 1993</div>
+    <div class="pixel-deco">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div class="progress-label" id="progressLabel">DUNGEONS CLEARED: 0 / 8</div>
+  <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+  <div id="phases">
+
+    <!-- PHASE 1 -->
+    <div class="phase" data-phase="1">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">01</span>
+        <span class="phase-title">AWAKENING · TAIL CAVE</span>
+        <span class="dungeon-badge">DUN. 1</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">⚔</span><span class="step-text">Wake up in <strong>Tarin's house</strong>, Mabe Village. You have no sword yet — don't panic.</span></div>
+        <div class="step"><span class="step-icon">🗡</span><span class="step-text">Head south to <strong>Toronbo Shores</strong>. Find your <strong>Sword</strong> washed up on the beach.</span></div>
+        <div class="step"><span class="step-icon">🛡</span><span class="step-text">Your <strong>Shield</strong> is in Tarin's house before you leave — grab it first.</span></div>
+        <div class="step"><span class="step-icon">🐢</span><span class="step-text">Go to the <strong>Mysterious Forest</strong> north of Mabe. A raccoon blocks the way. You can't harm him yet — come back after getting Magic Powder.</span></div>
+        <div class="step"><span class="step-icon">✨</span><span class="step-text">Get <strong>Magic Powder</strong> from the Witch's Hut (northeast area). Use it on the raccoon — he turns back into <strong>Tarin</strong>, revealing the path forward.</span></div>
+        <div class="step"><span class="step-icon">🗝</span><span class="step-text">Collect the <strong>Tail Key</strong> from the chest in the Mysterious Forest.</span></div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Tail Cave</strong> — southeast of Mabe Village. Use the Tail Key to enter.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Roc's Feather (jump)</span>
+          <span class="reward-item">Full Moon Cello (instrument 1/8)</span>
+        </div>
+        <div class="note">Start the Trading Sequence now: play the Trendy Game in Mabe Village to win a <strong>Yoshi Doll</strong>.</div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase" data-phase="2">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">02</span>
+        <span class="phase-title">BOWWOW · BOTTLE GROTTO</span>
+        <span class="dungeon-badge">DUN. 2</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🎀</span><span class="step-text">Trade the <strong>Yoshi Doll</strong> to Papahl's wife (house in Mabe) for a <strong>Ribbon</strong>. Then trade the Ribbon to the <strong>Chain Chomp</strong> (BowWow) in the northeast house for <strong>Dog Food</strong>.</span></div>
+        <div class="step"><span class="step-icon">🐾</span><span class="step-text">Head north of Mabe Village toward the Goponga Swamp. You'll find <strong>BowWow has been kidnapped</strong> by Moblins. Enter the cave, clear the enemies, and rescue him.</span></div>
+        <div class="step"><span class="step-icon">🌿</span><span class="step-text">BowWow will eat the Goponga Flowers blocking the dungeon entrance — take him there.</span></div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Bottle Grotto</strong> — in Goponga Swamp. BowWow chomps the way in.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Power Bracelet (lift objects)</span>
+          <span class="reward-item">Conch Horn (instrument 2/8)</span>
+        </div>
+        <div class="note">Return BowWow to his post after the dungeon or his owner gets upset!</div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase" data-phase="3">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">03</span>
+        <span class="phase-title">KANALET CASTLE · KEY CAVERN</span>
+        <span class="dungeon-badge">DUN. 3</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🐊</span><span class="step-text">Trade the <strong>Dog Food</strong> to the Crocodile shopkeeper at <strong>Toronbo Shores</strong> for <strong>Bananas</strong>.</span></div>
+        <div class="step"><span class="step-icon">🍌</span><span class="step-text">Bring the Bananas to a monkey named <strong>Kiki</strong> outside Kanalet Castle (east of Mabe). He builds a bridge to the castle entrance.</span></div>
+        <div class="step"><span class="step-icon">🏰</span><span class="step-text">Enter <strong>Kanalet Castle</strong> and collect all <strong>5 Golden Leaves</strong> by defeating the guards inside. Deliver them to Richard (in the house south of the castle) to receive the <strong>Slime Key</strong>.</span></div>
+        <div class="note">A <strong>Stick</strong> is dropped by a crow enemy inside the castle — pick it up for the trading sequence.</div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Key Cavern</strong> — in Ukuku Prairie. Use the Slime Key.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Pegasus Boots (dash)</span>
+          <span class="reward-item">Sea Lily's Bell (instrument 3/8)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase" data-phase="4">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">04</span>
+        <span class="phase-title">OCARINA · ANGLER'S TUNNEL</span>
+        <span class="dungeon-badge">DUN. 4</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🎵</span><span class="step-text">Use the <strong>Pegasus Boots</strong> to dash into the cracked wall in the <strong>Dream Shrine</strong> (east side of Mabe Village). Collect the <strong>Ocarina</strong>.</span></div>
+        <div class="step"><span class="step-icon">🎶</span><span class="step-text">Go to <strong>Animal Village</strong> (southeast). Find <strong>Marin</strong> and learn the <strong>Ballad of the Wind Fish</strong> — your first song.</span></div>
+        <div class="step"><span class="step-icon">🏜</span><span class="step-text">Enter <strong>Yarna Desert</strong> (southeast of Animal Village). Defeat the boss <strong>Lanmola</strong> to uncover and collect the <strong>Angler Key</strong>.</span></div>
+        <div class="note">You need the Power Bracelet to move the large stone blocking the desert entrance.</div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Angler's Tunnel</strong> — on Tal Tal Mountain Range (northwest). Use the Angler Key.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Flippers (swim)</span>
+          <span class="reward-item">Surf Harp (instrument 4/8)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase" data-phase="5">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">05</span>
+        <span class="phase-title">THE GHOST · CATFISH'S MAW</span>
+        <span class="dungeon-badge">DUN. 5</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">👻</span><span class="step-text">After getting the Flippers, walk along the <strong>beach east of Animal Village</strong>. You'll find and pick up an <strong>Urn</strong> — this triggers a ghost to begin following you.</span></div>
+        <div class="step"><span class="step-icon">🏠</span><span class="step-text">Take the ghost back to his <strong>old house</strong> in the northwest part of the map (he'll guide you). He wants to see it one last time.</span></div>
+        <div class="step"><span class="step-icon">⚰</span><span class="step-text">Next take him to the <strong>graveyard</strong> (north of Mabe). He'll find peace and vanish, leaving behind a <strong>Secret Medicine</strong> as thanks.</span></div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Catfish's Maw</strong> — in the water south of Animal Village. You need the Flippers to access it.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Hookshot</span>
+          <span class="reward-item">Wind Marimba (instrument 5/8)</span>
+        </div>
+        <div class="note">The Hookshot is one of the most useful tools in the game — it pulls you to targets and defeats some enemies in one hit.</div>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase" data-phase="6">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">06</span>
+        <span class="phase-title">FACE SHRINE</span>
+        <span class="dungeon-badge">DUN. 6</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🗿</span><span class="step-text">Head to the <strong>south-central area</strong> of the island. You'll need to move large stone faces (using the Power Bracelet) to uncover the hidden entrance to the Face Shrine.</span></div>
+        <div class="step"><span class="step-icon">🔑</span><span class="step-text">The <strong>Face Key</strong> is found in the southeast area of the island — collect it before entering.</span></div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Face Shrine</strong> — south-central Koholint Island.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Magic Rod (fire shots)</span>
+          <span class="reward-item">Coral Triangle (instrument 6/8)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 7 -->
+    <div class="phase" data-phase="7">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">07</span>
+        <span class="phase-title">EAGLE'S TOWER</span>
+        <span class="dungeon-badge">DUN. 7</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🦅</span><span class="step-text">Head into the <strong>Tal Tal Mountain Range</strong>. Explore the mountain paths to find the <strong>Bird Key</strong>.</span></div>
+        <div class="step"><span class="step-icon">🔓</span><span class="step-text">Use the Bird Key to unlock <strong>Eagle's Tower</strong>, high on the mountain.</span></div>
+        <div class="note">Continue the Trading Sequence — by now you should be close to the end of the chain. The sequence concludes with the <strong>Magnifying Glass</strong>, which is required to finish the game.</div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Eagle's Tower</strong> — upper Tal Tal Mountain Range.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Mirror Shield</span>
+          <span class="reward-item">Organ of Evening Calm (instrument 7/8)</span>
+        </div>
+        <div class="note">A unique mechanic here — you need to knock down four pillars to collapse the upper floor before you can progress to the boss.</div>
+      </div>
+    </div>
+
+    <!-- PHASE 8 -->
+    <div class="phase" data-phase="8">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">08</span>
+        <span class="phase-title">TURTLE ROCK</span>
+        <span class="dungeon-badge">DUN. 8</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🐢</span><span class="step-text"><strong>Turtle Rock</strong> is sealed. To open it, stand at the entrance and play the <strong>correct melody</strong> on your Ocarina — the tune is hinted at earlier in the game.</span></div>
+        <div class="note">It is NOT the Magic Rod that opens Turtle Rock — that's a common mistake. It's an Ocarina song played at the entrance.</div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">🏛</span><span class="step-text"><strong>Turtle Rock</strong> — far east of Tal Tal Mountain Range. The toughest dungeon.</span></div>
+        <div class="rewards">
+          <span class="reward-item">Thunder Drum (instrument 8/8)</span>
+        </div>
+        <div class="note">Magic Rod and Hookshot are both heavily used here. Make sure you have plenty of Magic Powder too.</div>
+      </div>
+    </div>
+
+    <!-- FINAL PHASE -->
+    <div class="phase" data-phase="final">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">★</span>
+        <span class="phase-title">THE WIND FISH'S EGG · FINALE</span>
+        <span class="dungeon-badge">FINAL</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🥚</span><span class="step-text">All 8 instruments collected. Go to the <strong>Giant Egg</strong> at the peak of Mt. Tamaranch (centre of the island).</span></div>
+        <div class="step"><span class="step-icon">🎵</span><span class="step-text">Play the <strong>Ballad of the Wind Fish</strong> outside the egg. A crack will appear.</span></div>
+        <div class="step"><span class="step-icon">💨</span><span class="step-text">Use your <strong>Pegasus Boots</strong> to dash into the crack and enter the egg.</span></div>
+        <div class="step"><span class="step-icon">🌀</span><span class="step-text">Navigate the maze inside. The <strong>Magnifying Glass</strong> (from the Trading Sequence) is required to read a hidden inscription that reveals the weaknesses of the final boss's forms.</span></div>
+        <div class="step"><span class="step-icon">⚔</span><span class="step-text">The final boss has <strong>multiple forms</strong> — each a callback to a different boss you've already defeated. Keep your health stocked and your Magic Rod ready.</span></div>
+        <div class="note">The true final form requires the Silver Arrows. Make sure you have them before the final encounter.</div>
+      </div>
+    </div>
+
+  </div><!-- end phases -->
+
+  <!-- TRADING SEQUENCE -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ FULL TRADING SEQUENCE</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="note">Required to complete. The Magnifying Glass at the end is not optional.</div>
+      <div class="trade-chain">
+        <span class="trade-item">Yoshi Doll</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Ribbon</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Dog Food</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Bananas</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Stick</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Honeycomb</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Pineapple</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Hibiscus</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Letter</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Broom</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Fishing Hook</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Necklace</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Scale</span><span class="trade-arrow">→</span>
+        <span class="trade-item">✦ Magnifying Glass</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ESSENTIAL TIPS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ ESSENTIAL TIPS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="step"><span class="step-icon">🐚</span><span class="step-text"><strong>Secret Seashells:</strong> Scattered across the island. Collect 20 to get the <strong>L-2 Sword</strong> upgrade from the Seashell Mansion. Many are easy to miss, so look out for suspicious patches of grass and obscure chests as you explore.</span></div>
+      <div class="step"><span class="step-icon">🌀</span><span class="step-text"><strong>Warp Portals:</strong> Four warp tiles on the overworld. Step on them to activate — they dramatically speed up backtracking across the island.</span></div>
+      <div class="step"><span class="step-icon">📞</span><span class="step-text"><strong>Ulrira:</strong> Every telephone booth on the island connects to an old man named Ulrira. He gives free, genuinely useful hints. Don't be too proud to call.</span></div>
+      <div class="step"><span class="step-icon">❤</span><span class="step-text"><strong>Heart Pieces:</strong> Four pieces make one Heart Container. Keep an eye out — some require specific items like the Hookshot or Power Bracelet you may have just acquired.</span></div>
+      <div class="step"><span class="step-icon">💰</span><span class="step-text"><strong>Rupees:</strong> The Trendy Game and fishing pond are good sources. Keep funds topped up — the shop in Mabe has useful items, including a <strong>Bow</strong> you'll need.</span></div>
+      <div class="step"><span class="step-icon">🏹</span><span class="step-text"><strong>Silver Arrows:</strong> Required for the final boss. Buy the Bow from the shop in Mabe Village, then find the Arrows separately. Don't enter the egg without them.</span></div>
+    </div>
+  </div>
+
+  <div class="footer">— KOHOLINT ISLAND — ★ — DREAM OR REALITY? —</div>
+
+</div>
+
+<script>
+  function togglePhase(header) {
+    const phase = header.parentElement;
+    phase.classList.toggle('collapsed');
+  }
+
+  function toggleTips(header) {
+    const section = header.parentElement;
+    const body = section.querySelector('.tips-body');
+    const arrow = header.querySelector('.toggle-arrow');
+    if (body.style.maxHeight && body.style.maxHeight !== '0px') {
+      body.style.maxHeight = '0px';
+      body.style.paddingTop = '0';
+      body.style.paddingBottom = '0';
+      arrow.style.transform = 'rotate(-90deg)';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 200 + 'px';
+      body.style.paddingTop = '';
+      body.style.paddingBottom = '';
+      arrow.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  // Set max-height for animation on open phases
+  document.querySelectorAll('.phase-body').forEach(body => {
+    body.style.maxHeight = body.scrollHeight + 'px';
+  });
+
+  // Init tips-body transitions
+  document.querySelectorAll('.tips-body').forEach(body => {
+    body.style.transition = 'max-height 0.3s ease, padding 0.3s ease';
+    body.style.overflow = 'hidden';
+    body.style.maxHeight = body.scrollHeight + 200 + 'px';
+  });
+
+  // Progress tracker — persisted via URL hash (e.g. #1,3,5)
+  const dungeonPhases = document.querySelectorAll('[data-phase]');
+
+  function loadCleared() {
+    const hash = window.location.hash.replace('#', '');
+    return hash ? hash.split(',').filter(Boolean) : [];
+  }
+
+  function saveCleared(cleared) {
+    const numeric = cleared.filter(p => !isNaN(parseInt(p)));
+    window.location.hash = numeric.join(',');
+  }
+
+  function updateProgress(cleared) {
+    const count = cleared.filter(p => !isNaN(parseInt(p))).length;
+    document.getElementById('progressLabel').textContent = `DUNGEONS CLEARED: ${count} / 8`;
+    document.getElementById('progressFill').style.width = (count / 8 * 100) + '%';
+  }
+
+  function applyCleared(cleared) {
+    dungeonPhases.forEach(phase => {
+      const id = phase.dataset.phase;
+      const header = phase.querySelector('.phase-header');
+      header.style.opacity = cleared.includes(id) ? '0.55' : '1';
+    });
+    updateProgress(cleared);
+  }
+
+  dungeonPhases.forEach(phase => {
+    const id = phase.dataset.phase;
+    const header = phase.querySelector('.phase-header');
+
+    header.addEventListener('dblclick', () => {
+      if (isNaN(parseInt(id))) return;
+      const cleared = loadCleared();
+      const idx = cleared.indexOf(id);
+      if (idx === -1) cleared.push(id);
+      else cleared.splice(idx, 1);
+      saveCleared(cleared);
+      applyCleared(cleared);
+    });
+  });
+
+  // Restore on load
+  applyCleared(loadCleared());
+</script>
+
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/sw.js');
+  }
+</script>
+</body>
+</html>
