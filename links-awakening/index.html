@@ -698,11 +698,15 @@
     phase.classList.add('collapsed');
   });
 
-  // Init tips-body transitions
+  // Init tips-body transitions — start collapsed
   document.querySelectorAll('.tips-body').forEach(body => {
     body.style.transition = 'max-height 0.3s ease, padding 0.3s ease';
     body.style.overflow = 'hidden';
-    body.style.maxHeight = body.scrollHeight + 200 + 'px';
+    body.style.maxHeight = '0px';
+    body.style.paddingTop = '0';
+    body.style.paddingBottom = '0';
+    const arrow = body.parentElement.querySelector('.toggle-arrow');
+    if (arrow) arrow.style.transform = 'rotate(-90deg)';
   });
 
   // Progress tracker — persisted via URL hash (e.g. #1,3,5)
