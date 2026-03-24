@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Mario Land — Field Guide</title>
+<link rel="manifest" href="/retro-field-guides/manifest.json">
+<meta name="theme-color" content="#0f1a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Field Guides">
+<link rel="apple-touch-icon" href="/retro-field-guides/icons/icon-192.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --gb-darkest: #0f1a0f;
+    --gb-dark: #1a3a1a;
+    --gb-mid: #2d6a2d;
+    --gb-light: #5a9e3a;
+    --gb-lighter: #8bcc50;
+    --gb-lightest: #c8e870;
+    --gb-screen-bg: #9bbc0f;
+    --gb-screen-shadow: #306230;
+    --gb-screen-dark: #0f380f;
+    --gb-screen-mid: #8bac0f;
+    --scanline-color: rgba(15, 56, 15, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--gb-darkest);
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--gb-screen-dark);
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      var(--scanline-color) 3px,
+      var(--scanline-color) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  .screen-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--gb-screen-bg);
+    border: 6px solid var(--gb-screen-dark);
+    box-shadow:
+      inset 0 0 40px rgba(15,56,15,0.3),
+      0 0 60px rgba(139,204,80,0.15),
+      0 0 120px rgba(139,204,80,0.05),
+      0 8px 32px rgba(0,0,0,0.8);
+    position: relative;
+    padding: 28px 32px 36px;
+    image-rendering: pixelated;
+  }
+
+  .screen-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 6px solid var(--gb-screen-dark);
+    clip-path: polygon(
+      12px 0%, calc(100% - 12px) 0%,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0% calc(100% - 12px), 0% 12px
+    );
+    pointer-events: none;
+  }
+
+  .game-header {
+    text-align: center;
+    border-bottom: 4px solid var(--gb-screen-dark);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .game-header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gb-screen-mid);
+  }
+
+  .title-eyebrow {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: var(--gb-screen-shadow);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: var(--gb-screen-dark);
+    line-height: 1;
+    text-shadow: 3px 3px 0 var(--gb-screen-shadow);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  .pixel-deco {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin: 10px 0 0;
+  }
+  .pixel-deco span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gb-screen-dark);
+  }
+  .pixel-deco span:nth-child(2) { margin-top: -4px; }
+
+  .phase {
+    margin-bottom: 20px;
+    border: 3px solid var(--gb-screen-dark);
+    background: rgba(15,56,15,0.06);
+    position: relative;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase:nth-child(1) { animation-delay: 0.05s; }
+  .phase:nth-child(2) { animation-delay: 0.1s; }
+  .phase:nth-child(3) { animation-delay: 0.15s; }
+  .phase:nth-child(4) { animation-delay: 0.2s; }
+
+  .phase-header {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .phase-header:hover { background: var(--gb-screen-shadow); }
+
+  .phase-num {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: var(--gb-lightest);
+    min-width: 28px;
+  }
+
+  .phase-title {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .world-badge {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    background: var(--gb-screen-shadow);
+    color: var(--gb-lightest);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  .toggle-arrow {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+    color: var(--gb-screen-mid);
+    margin-left: 4px;
+  }
+
+  .phase.collapsed .toggle-arrow { transform: rotate(-90deg); }
+
+  .phase-body {
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  .phase.collapsed .phase-body {
+    max-height: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .level-group {
+    border-left: 3px solid var(--gb-screen-shadow);
+    padding-left: 10px;
+    margin-top: 4px;
+  }
+
+  .level-label {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--gb-screen-shadow);
+    margin-bottom: 6px;
+  }
+
+  .step {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .step-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .step-text { flex: 1; }
+
+  .boss-block {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-bg);
+    padding: 10px 12px;
+    margin-top: 4px;
+  }
+
+  .boss-label {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--gb-lightest);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .boss-block .step {
+    font-size: 12px;
+    color: var(--gb-screen-bg);
+  }
+
+  .rewards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .reward-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    background: var(--gb-screen-shadow);
+    color: var(--gb-lightest);
+    padding: 2px 8px;
+    letter-spacing: 1px;
+  }
+
+  .note {
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 6px 10px;
+    border-left: 3px solid var(--gb-screen-shadow);
+    background: rgba(15,56,15,0.08);
+  }
+
+  .note::before {
+    content: '! ';
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--gb-screen-dark);
+  }
+
+  .tips-section {
+    margin-top: 24px;
+    border: 3px solid var(--gb-screen-dark);
+    animation: fadeIn 0.4s 0.3s ease both;
+  }
+
+  .tips-header {
+    background: var(--gb-screen-shadow);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .tips-body {
+    padding: 12px 14px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .powerup-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .pu-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    background: var(--gb-screen-dark);
+    color: var(--gb-lightest);
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .pu-desc {
+    font-size: 11px;
+    line-height: 1.5;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .divider {
+    height: 3px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--gb-screen-dark) 0px,
+      var(--gb-screen-dark) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    margin: 4px 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-wrapper">
+
+  <div class="game-header">
+    <a href="/retro-field-guides/" style="font-family:'VT323',monospace;font-size:13px;letter-spacing:3px;color:var(--gb-screen-shadow);text-decoration:none;display:block;margin-bottom:8px;opacity:0.8;">◀ ALL GUIDES</a>
+    <span class="title-eyebrow">★ FIELD GUIDE ★</span>
+    <h1>SUPER MARIO LAND</h1>
+    <div class="subtitle">GAME BOY · 1989</div>
+    <div class="pixel-deco">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="phases">
+
+    <!-- WORLD 1 -->
+    <div class="phase" data-phase="1">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">01</span>
+        <span class="phase-title">BIRABUTO KINGDOM</span>
+        <span class="world-badge">WORLD 1</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Egypt-themed world. Standard platforming — good place to stock up on lives via the bonus game. Three levels before the boss.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 1-1 · 1-2 · 1-3 —</div>
+          <div class="step"><span class="step-icon">🍄</span><span class="step-text">Mushrooms grow you to <strong>Super Mario</strong> — grab every one you see. Superballs replace fireballs here: they bounce at 45-degree angles and can collect coins off walls.</span></div>
+          <div class="step"><span class="step-icon">⭐</span><span class="step-text">Stars grant brief invincibility — run through enemies to rack up bonus points and a 1-UP chain if you hit enough in one go.</span></div>
+          <div class="step"><span class="step-icon">🪙</span><span class="step-text">100 coins = 1-UP. The bonus game (slot machine at the end of each level) gives extra lives if you line up hearts — always spend a coin on it.</span></div>
+          <div class="step"><span class="step-icon">🏁</span><span class="step-text">Hit the <strong>goal bell</strong> as high as possible for a point bonus. Jump at it from underneath rather than running past.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">BOSS — KING TOTOMESU</span>
+          <div class="step"><span class="step-icon">🦁</span><span class="step-text">A stone lion that fires projectiles. <strong>Hit with 4 Superballs</strong> or <strong>stomp 4 times</strong> — keep moving and bounce Superballs off the floor into him. Stay to one side and fire at an angle.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 2 -->
+    <div class="phase" data-phase="2">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">02</span>
+        <span class="phase-title">MUDA KINGDOM</span>
+        <span class="world-badge">WORLD 2</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Bermuda Triangle / underwater theme. Level 2-2 puts you in the <strong>Marine Pop</strong> submarine — a completely different control scheme. The sub fires torpedoes; enemies behave differently. Don't panic and keep moving forward.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 2-1 · 2-3 (LAND) —</div>
+          <div class="step"><span class="step-icon">🐠</span><span class="step-text">Enemies here include Yurarin (fish that arc up and down) and Ganchan (bouncing boulders). Superballs are effective — fire diagonally into tight corridors.</span></div>
+          <div class="step"><span class="step-icon">💧</span><span class="step-text">Water sections in 2-1 and 2-3: Mario swims but movement is sluggish. Avoid enemies rather than fighting them — the hit window is tricky underwater.</span></div>
+        </div>
+
+        <div class="level-group">
+          <div class="level-label">— 2-2 (MARINE POP SUBMARINE) —</div>
+          <div class="step"><span class="step-icon">🚤</span><span class="step-text">The sub auto-scrolls. Fire torpedoes with B — they travel in a straight line. You can fire two at once.</span></div>
+          <div class="step"><span class="step-icon">🎯</span><span class="step-text">Lead your shots — fire slightly ahead of moving enemies. Torpedo count is unlimited but there's a slight cooldown between shots.</span></div>
+          <div class="step"><span class="step-icon">💥</span><span class="step-text">Hitting walls or enemies causes damage. Stay centred vertically and make small adjustments — overcorrecting will get you hit.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">BOSS — DRAGONZAMASU</span>
+          <div class="step"><span class="step-icon">🐉</span><span class="step-text">A sea dragon fought in the Marine Pop. He fires a large projectile from his mouth. <strong>Fire two torpedoes per opening</strong> when his mouth is open — 4 hits total. Keep the sub moving up and down to dodge his shots.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 3 -->
+    <div class="phase" data-phase="3">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">03</span>
+        <span class="phase-title">EASTON KINGDOM</span>
+        <span class="world-badge">WORLD 3</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Easter Island / stone heads theme. Difficulty steps up noticeably — tighter jumps, more aggressive enemies, and more complex level layouts. Take your time on 3-3 in particular.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 3-1 · 3-2 · 3-3 —</div>
+          <div class="step"><span class="step-icon">🗿</span><span class="step-text"><strong>Ganchan</strong> (rolling stone heads) are the main hazard — they can't be stomped, only dodged or hit with Superballs. Learn their bounce pattern before committing to a jump.</span></div>
+          <div class="step"><span class="step-icon">🌋</span><span class="step-text">3-2 has moving platforms over gaps. Wait for the platform rhythm before jumping — rushing here costs lives.</span></div>
+          <div class="step"><span class="step-icon">🍄</span><span class="step-text">Keep Super Mario status coming into the boss — 3-3 has mushrooms available but they require a detour. Worth it.</span></div>
+          <div class="step"><span class="step-icon">⬆</span><span class="step-text">There are hidden coin blocks in 3-1. Bounce Superballs into suspicious empty-looking areas to reveal them.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">BOSS — HIYOIHOI</span>
+          <div class="step"><span class="step-icon">🗿</span><span class="step-text">A large stone Moai head that throws Ganchans at you. The Ganchans bounce across the floor — <strong>jump over them and fire Superballs at Hiyoihoi's face</strong>. 4 hits. Stay mobile, don't get cornered on either side.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 4 -->
+    <div class="phase" data-phase="4">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">04</span>
+        <span class="phase-title">CHAI KINGDOM</span>
+        <span class="world-badge">WORLD 4</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">China-themed final world. Features the <strong>Sky Pop</strong> airplane in 4-2 (equivalent to the Marine Pop but aerial). Hardest levels in the game — stock lives before this world.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 4-1 · 4-3 (LAND) —</div>
+          <div class="step"><span class="step-icon">🏯</span><span class="step-text">4-1 mixes enemy types from all previous worlds. Enemies are faster and more numerous. Superballs and a conservative playstyle will serve you better than rushing.</span></div>
+          <div class="step"><span class="step-icon">⚡</span><span class="step-text">4-3 is the final land level before Tatanga. It's short but dense with enemies. Prioritise reaching the end with Super Mario status intact.</span></div>
+        </div>
+
+        <div class="level-group">
+          <div class="level-label">— 4-2 (SKY POP AIRPLANE) —</div>
+          <div class="step"><span class="step-icon">✈</span><span class="step-text">Same mechanics as the Marine Pop but in the air. The Sky Pop fires missiles — B to shoot, two in the air at a time.</span></div>
+          <div class="step"><span class="step-icon">🎯</span><span class="step-text">Enemies fly in formation — pick off the lead enemy in each group to scatter the rest. Don't let formations get behind you.</span></div>
+          <div class="step"><span class="step-icon">💥</span><span class="step-text">The plane takes damage from collision, same as the sub. Stay away from the edges of the screen — enemies appear from the right with little warning.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">BOSS 1 — BIOKINTON</span>
+          <div class="step"><span class="step-icon">☁</span><span class="step-text">A cloud-like boss fought in the Sky Pop. He spawns <strong>Chickens</strong> (Pionpi) that fly at you. <strong>Ignore the chickens</strong> — focus fire on Biokinton himself. He moves in a slow arc. 4 missile hits. Keep firing rapidly.</span></div>
+        </div>
+
+        <div class="boss-block" style="margin-top:10px;">
+          <span class="boss-label">FINAL BOSS — TATANGA</span>
+          <div class="step"><span class="step-icon">👾</span><span class="step-text">The alien villain, fought on foot (not in a vehicle). He fires three types of projectile in sequence: a spread of small shots, a large central shot, and angled shots. <strong>The pattern repeats — learn it.</strong></span></div>
+          <div class="step"><span class="step-icon">⭐</span><span class="step-text">Jump over the low shots, duck under the high ones (or run under them). <strong>Hit Tatanga with Superballs</strong> — bounce them off the floor into his ship. He takes many hits. Stay calm and keep the rhythm.</span></div>
+          <div class="step"><span class="step-icon">❤</span><span class="step-text">Enter this fight as Super Mario if at all possible. Getting hit once is survivable — getting hit as small Mario often means death from the next shot.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end phases -->
+
+  <!-- POWERUPS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ POWERUPS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="powerup-row">
+        <span class="pu-item">MUSHROOM</span>
+        <span class="pu-desc">Grow to Super Mario. Can take one hit before shrinking. Always grab these.</span>
+      </div>
+      <div class="powerup-row">
+        <span class="pu-item">SUPERBALL FLOWER</span>
+        <span class="pu-desc">Grants the Superball — replaces the fireball. Bounces at 45 degrees off floors and walls. Can collect coins and hit enemies around corners. Only one ball on screen at a time.</span>
+      </div>
+      <div class="powerup-row">
+        <span class="pu-item">STAR</span>
+        <span class="pu-desc">Brief invincibility. Run through enemies for bonus points — 5 in a row triggers a 1-UP chain. Rare; use them aggressively.</span>
+      </div>
+      <div class="powerup-row">
+        <span class="pu-item">HEART</span>
+        <span class="pu-desc">Grants an extra life. Hidden in blocks — worth hunting for with Superballs.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ ESSENTIAL TIPS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="step"><span class="step-icon">🎰</span><span class="step-text"><strong>Bonus Game:</strong> Costs 1 coin. Spin three slots — matching hearts gives a 1-UP, matching stars gives 2-UPs, matching Marios gives 3. Always play it.</span></div>
+      <div class="step"><span class="step-icon">🪙</span><span class="step-text"><strong>Coins:</strong> 100 = 1 extra life. Superballs can collect coins from a distance — bounce them along walls in coin-heavy areas.</span></div>
+      <div class="step"><span class="step-icon">🔔</span><span class="step-text"><strong>Goal Bell:</strong> Hit the top of the bell for maximum points. Jump from a short run-up underneath it — the highest point is worth 300 points vs 100 at the bottom.</span></div>
+      <div class="step"><span class="step-icon">💀</span><span class="step-text"><strong>No save system:</strong> This is a short game (around 20-30 minutes). If you run out of lives it's Game Over — back to World 1. Build a life buffer in early worlds before pushing hard on World 4.</span></div>
+      <div class="step"><span class="step-icon">🔁</span><span class="step-text"><strong>Game Over continue:</strong> On the Game Over screen, hold down and press B repeatedly to re-enter with a small number of lives. Not widely documented but it works.</span></div>
+    </div>
+  </div>
+
+  <div class="footer">— SARASALAND — ★ — RESCUE DAISY —</div>
+
+</div>
+
+<script>
+  function togglePhase(header) {
+    const phase = header.parentElement;
+    const body = phase.querySelector('.phase-body');
+    if (phase.classList.contains('collapsed')) {
+      phase.classList.remove('collapsed');
+      body.style.maxHeight = body.scrollHeight + 'px';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      requestAnimationFrame(() => {
+        phase.classList.add('collapsed');
+      });
+    }
+  }
+
+  function toggleTips(header) {
+    const section = header.parentElement;
+    const body = section.querySelector('.tips-body');
+    const arrow = header.querySelector('.toggle-arrow');
+    if (body.style.maxHeight && body.style.maxHeight !== '0px') {
+      body.style.maxHeight = '0px';
+      body.style.paddingTop = '0';
+      body.style.paddingBottom = '0';
+      arrow.style.transform = 'rotate(-90deg)';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 200 + 'px';
+      body.style.paddingTop = '';
+      body.style.paddingBottom = '';
+      arrow.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  // Start all phases collapsed
+  document.querySelectorAll('.phase').forEach(phase => {
+    phase.classList.add('collapsed');
+  });
+
+  // Init tips-body transitions — start collapsed
+  document.querySelectorAll('.tips-body').forEach(body => {
+    body.style.transition = 'max-height 0.3s ease, padding 0.3s ease';
+    body.style.overflow = 'hidden';
+    body.style.maxHeight = '0px';
+    body.style.paddingTop = '0';
+    body.style.paddingBottom = '0';
+    const arrow = body.parentElement.querySelector('.toggle-arrow');
+    if (arrow) arrow.style.transform = 'rotate(-90deg)';
+  });
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/retro-field-guides/sw.js');
+  }
+</script>
+
+</body>
+</html>
