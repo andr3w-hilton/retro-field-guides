@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Pokettohiro — Field Guide</title>
+<link rel="manifest" href="../manifest.json">
+<meta name="theme-color" content="#0f1a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Field Guides">
+<link rel="apple-touch-icon" href="../icons/icon-192.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --gb-darkest: #0f1a0f;
+    --gb-dark: #1a3a1a;
+    --gb-mid: #2d6a2d;
+    --gb-light: #5a9e3a;
+    --gb-lighter: #8bcc50;
+    --gb-lightest: #c8e870;
+    --gb-screen-bg: #9bbc0f;
+    --gb-screen-shadow: #306230;
+    --gb-screen-dark: #0f380f;
+    --gb-screen-mid: #8bac0f;
+    --scanline-color: rgba(15, 56, 15, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--gb-darkest);
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--gb-screen-dark);
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      var(--scanline-color) 3px,
+      var(--scanline-color) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  .screen-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--gb-screen-bg);
+    border: 6px solid var(--gb-screen-dark);
+    box-shadow:
+      inset 0 0 40px rgba(15,56,15,0.3),
+      0 0 60px rgba(139,204,80,0.15),
+      0 0 120px rgba(139,204,80,0.05),
+      0 8px 32px rgba(0,0,0,0.8);
+    position: relative;
+    padding: 28px 32px 36px;
+    image-rendering: pixelated;
+  }
+
+  .screen-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 6px solid var(--gb-screen-dark);
+    clip-path: polygon(
+      12px 0%, calc(100% - 12px) 0%,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0% calc(100% - 12px), 0% 12px
+    );
+    pointer-events: none;
+  }
+
+  .game-header {
+    text-align: center;
+    border-bottom: 4px solid var(--gb-screen-dark);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .game-header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gb-screen-mid);
+  }
+
+  .title-eyebrow {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: var(--gb-screen-shadow);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: var(--gb-screen-dark);
+    line-height: 1;
+    text-shadow: 3px 3px 0 var(--gb-screen-shadow);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  .pixel-deco {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin: 10px 0 0;
+  }
+  .pixel-deco span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gb-screen-dark);
+  }
+  .pixel-deco span:nth-child(2) { margin-top: -4px; }
+
+  .phase {
+    margin-bottom: 20px;
+    border: 3px solid var(--gb-screen-dark);
+    background: rgba(15,56,15,0.06);
+    position: relative;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase:nth-child(1) { animation-delay: 0.05s; }
+  .phase:nth-child(2) { animation-delay: 0.1s; }
+  .phase:nth-child(3) { animation-delay: 0.15s; }
+  .phase:nth-child(4) { animation-delay: 0.2s; }
+  .phase:nth-child(5) { animation-delay: 0.25s; }
+  .phase:nth-child(6) { animation-delay: 0.3s; }
+  .phase:nth-child(7) { animation-delay: 0.35s; }
+
+  .phase-header {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .phase-header:hover { background: var(--gb-screen-shadow); }
+
+  .phase-num {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: var(--gb-lightest);
+    min-width: 28px;
+  }
+
+  .phase-title {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .dungeon-badge {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    background: var(--gb-screen-shadow);
+    color: var(--gb-lightest);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  .toggle-arrow {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+    color: var(--gb-screen-mid);
+    margin-left: 4px;
+  }
+
+  .phase.collapsed .toggle-arrow { transform: rotate(-90deg); }
+
+  .phase-body {
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  .phase.collapsed .phase-body {
+    max-height: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .step {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .step-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .step-text { flex: 1; }
+
+  .unlock-block {
+    background: var(--gb-screen-shadow);
+    color: var(--gb-lightest);
+    padding: 8px 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    letter-spacing: 1px;
+  }
+
+  .unlock-label {
+    font-size: 13px;
+    letter-spacing: 2px;
+    opacity: 0.8;
+    white-space: nowrap;
+  }
+
+  .rewards {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 2px;
+  }
+
+  .reward-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    background: var(--gb-screen-shadow);
+    color: var(--gb-lightest);
+    padding: 2px 8px;
+    letter-spacing: 1px;
+  }
+
+  .note {
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 6px 10px;
+    border-left: 3px solid var(--gb-screen-shadow);
+    background: rgba(15,56,15,0.08);
+  }
+
+  .note::before {
+    content: '! ';
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--gb-screen-dark);
+  }
+
+  .divider {
+    height: 3px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--gb-screen-dark) 0px,
+      var(--gb-screen-dark) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    margin: 4px 0;
+  }
+
+  .tips-section {
+    margin-top: 24px;
+    border: 3px solid var(--gb-screen-dark);
+    animation: fadeIn 0.4s 0.4s ease both;
+  }
+
+  .tips-header {
+    background: var(--gb-screen-shadow);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .tips-body {
+    padding: 12px 14px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .trade-chain {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2px;
+    align-items: center;
+    padding: 8px 10px;
+    background: rgba(15,56,15,0.08);
+    border: 2px solid var(--gb-screen-shadow);
+    font-size: 11px;
+    line-height: 2;
+  }
+
+  .trade-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    background: var(--gb-screen-dark);
+    color: var(--gb-lightest);
+    padding: 1px 6px;
+    white-space: nowrap;
+  }
+
+  .trade-arrow {
+    color: var(--gb-screen-shadow);
+    font-size: 14px;
+    padding: 0 2px;
+  }
+
+  .char-row {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    line-height: 1.6;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(15,56,15,0.15);
+  }
+
+  .char-row:last-child { border-bottom: none; }
+
+  .char-name {
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    background: var(--gb-screen-dark);
+    color: var(--gb-lightest);
+    padding: 1px 7px;
+    white-space: nowrap;
+    min-width: 90px;
+    text-align: center;
+  }
+
+  .char-desc { flex: 1; }
+
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-wrapper">
+
+  <div class="game-header">
+    <a href="/retro-field-guides/" style="font-family:'VT323',monospace;font-size:13px;letter-spacing:3px;color:var(--gb-screen-shadow);text-decoration:none;display:block;margin-bottom:8px;opacity:0.8;">◀ ALL GUIDES</a>
+    <span class="title-eyebrow">★ FIELD GUIDE ★</span>
+    <h1>POKETTOHIRO</h1>
+    <div class="subtitle">GAME BOY COLOR · 2024</div>
+    <div class="pixel-deco">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="phases">
+
+    <!-- PHASE 1 -->
+    <div class="phase" data-phase="1">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">01</span>
+        <span class="phase-title">EARLY GAME · WATERMELON CHAIN</span>
+        <span class="dungeon-badge">PRE-DUNGEON</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Before you can access most of the world, you need to complete a short but non-obvious trading chain. Do this first — it unlocks the submarine and opens up the ocean floor.</div>
+        <div class="step"><span class="step-icon">🍉</span><span class="step-text">Find the <strong>cave shop</strong> on the path leading to the forest. Buy a <strong>Watermelon</strong> — this starts the chain.</span></div>
+        <div class="step"><span class="step-icon">👴</span><span class="step-text">Take the Watermelon to <strong>Akane's grandfather</strong> in the village. He trades it for a <strong>Snorkel</strong>.</span></div>
+        <div class="step"><span class="step-icon">🤿</span><span class="step-text">Give the Snorkel to <strong>Mizuki</strong>. In return, she grants you access to her <strong>Submarine</strong> — your route to the ocean floor.</span></div>
+        <div class="divider"></div>
+        <div class="step"><span class="step-icon">💬</span><span class="step-text">Talk to every NPC in the village thoroughly before leaving — several trigger progression flags that are easy to miss. The game doesn't signal this well.</span></div>
+        <div class="step"><span class="step-icon">💰</span><span class="step-text">Check <strong>Mr. Adventure's house</strong> early — there is a breakable wall inside leading to a room with unlimited money. Worth finding before you need to buy anything.</span></div>
+        <div class="step"><span class="step-icon">💎</span><span class="step-text">Magic Crystal fragments are hidden in flowers and rocks throughout the world. Collect them as you explore — gathering all crystals unlocks a secret ending and direct dungeon access.</span></div>
+        <div class="note">One crystal is hidden at the top of the village fountain — easy to miss on the way through.</div>
+      </div>
+    </div>
+
+    <!-- PHASE 2 -->
+    <div class="phase" data-phase="2">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">02</span>
+        <span class="phase-title">FOREST OF ILLUSION</span>
+        <span class="dungeon-badge">DUNGEON 1</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🌲</span><span class="step-text">The forest has <strong>repeating sections</strong> designed to disorient. The exit is not immediately obvious.</span></div>
+        <div class="step"><span class="step-icon">🌺</span><span class="step-text"><strong>Red flowers indicate the correct path.</strong> When you see them, follow their direction. Ignoring them and exploring freely will loop you back.</span></div>
+        <div class="step"><span class="step-icon">⚔</span><span class="step-text">You enter as the <strong>Hero</strong> — agile sword combat. Get comfortable with the attack timing here as it carries through the whole game.</span></div>
+        <div class="divider"></div>
+        <div class="unlock-block">
+          <span class="unlock-label">UNLOCKS</span>
+          <span>ARCHER — ranged precision attacks</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 3 -->
+    <div class="phase" data-phase="3">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">03</span>
+        <span class="phase-title">OCEAN DUNGEON</span>
+        <span class="dungeon-badge">DUNGEON 2</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Requires the Submarine from the Watermelon chain. Make sure that's done before heading here.</div>
+        <div class="step"><span class="step-icon">🚤</span><span class="step-text">Take Mizuki's <strong>Submarine</strong> to reach the ocean floor. Navigate to the Ocean dungeon entrance.</span></div>
+        <div class="step"><span class="step-icon">🏹</span><span class="step-text">The <strong>Archer</strong> (unlocked from the Forest dungeon) is useful here — ranged attacks help with underwater enemy placements. Swap to them if you're struggling.</span></div>
+        <div class="step"><span class="step-icon">🗝</span><span class="step-text">Collect the <strong>Abyss Key</strong> found on the ocean floor — it's needed to progress further into the world.</span></div>
+        <div class="divider"></div>
+        <div class="unlock-block">
+          <span class="unlock-label">UNLOCKS</span>
+          <span>NINJA — enhanced jumping, elevated area access</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 4 -->
+    <div class="phase" data-phase="4">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">04</span>
+        <span class="phase-title">DESERT TEMPLE</span>
+        <span class="dungeon-badge">DUNGEON 3</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🏜</span><span class="step-text">The <strong>Ninja's</strong> enhanced jump is useful for navigating elevated sections on the way to the desert. Use them to reach areas the Hero cannot.</span></div>
+        <div class="step"><span class="step-icon">🔍</span><span class="step-text">Pay close attention to NPC dialogue here — the desert has event flag requirements that are easy to miss. If you seem stuck, you've likely skipped a conversation.</span></div>
+        <div class="step"><span class="step-icon">💎</span><span class="step-text">Several crystal fragments are hidden in this area — check destructible rocks and flowers as you pass through.</span></div>
+        <div class="divider"></div>
+        <div class="unlock-block">
+          <span class="unlock-label">UNLOCKS</span>
+          <span>MAGE — reveals hidden objects, doors, and crystals</span>
+        </div>
+        <div class="note">The Mage is one of the most useful characters for exploration — swap to them whenever you suspect something is hidden nearby.</div>
+      </div>
+    </div>
+
+    <!-- PHASE 5 -->
+    <div class="phase" data-phase="5">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">05</span>
+        <span class="phase-title">VOLCANO · MATCHBOX CHAIN</span>
+        <span class="dungeon-badge">DUNGEON 4</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">A second trading chain begins here. It ultimately unlocks access to the Ice Palace — complete it as you go rather than backtracking later.</div>
+        <div class="step"><span class="step-icon">🌋</span><span class="step-text">Navigate to the <strong>Volcano</strong> via the mountain areas. Some mountain paths require the <strong>Bird Man</strong> — but Bird Man is unlocked by completing this dungeon. On first pass, use the Hero or Ninja to reach the entrance.</span></div>
+        <div class="step"><span class="step-icon">🔥</span><span class="step-text">Inside the volcano, find the <strong>Matchbox</strong>. This is the start of the second trading chain.</span></div>
+        <div class="step"><span class="step-icon">🎁</span><span class="step-text">Exchange the Matchbox for a <strong>Gift Voucher</strong>.</span></div>
+        <div class="step"><span class="step-icon">🎻</span><span class="step-text">Trade the Gift Voucher at the <strong>ocean shop</strong> for a <strong>Violin</strong>.</span></div>
+        <div class="step"><span class="step-icon">🧣</span><span class="step-text">Exchange the Violin for a <strong>Scarf</strong> — required to access the Ice Palace.</span></div>
+        <div class="divider"></div>
+        <div class="unlock-block">
+          <span class="unlock-label">UNLOCKS</span>
+          <span>BIRD MAN — flight, full mountain area access</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 6 -->
+    <div class="phase" data-phase="6">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">06</span>
+        <span class="phase-title">SKY DUNGEON</span>
+        <span class="dungeon-badge">DUNGEON 5</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🦅</span><span class="step-text">Use the <strong>Bird Man</strong> to access the mountain areas fully and reach the Sky Dungeon entrance — flight opens up sections that were previously inaccessible.</span></div>
+        <div class="step"><span class="step-icon">☁</span><span class="step-text">Revisit earlier mountain areas with the Bird Man — there are crystals and items in elevated spots you couldn't reach before.</span></div>
+        <div class="step"><span class="step-icon">🔍</span><span class="step-text">Use the <strong>Mage</strong> to reveal any hidden doors or objects before leaving each area — the sky region has several.</span></div>
+        <div class="divider"></div>
+        <div class="unlock-block">
+          <span class="unlock-label">UNLOCKS</span>
+          <span>FAIRY — access to narrow passages and hidden routes</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PHASE 7 -->
+    <div class="phase" data-phase="7">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">07</span>
+        <span class="phase-title">ICE PALACE</span>
+        <span class="dungeon-badge">DUNGEON 6</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Requires the Scarf from the Matchbox trading chain. If you don't have it, complete the Volcano chain before entering.</div>
+        <div class="step"><span class="step-icon">❄</span><span class="step-text">Equip the <strong>Scarf</strong> to gain entry. Without it the ice area is inaccessible regardless of what characters you have.</span></div>
+        <div class="step"><span class="step-icon">🧚</span><span class="step-text">The <strong>Fairy</strong> can access narrow passages in the Ice Palace that other characters cannot fit through — swap to her when you hit a dead end.</span></div>
+        <div class="step"><span class="step-icon">💎</span><span class="step-text">Use the <strong>Mage</strong> to reveal hidden objects before progressing through each room — the Ice Palace has several concealed items and doors.</span></div>
+        <div class="step"><span class="step-icon">🗡</span><span class="step-text">By this stage you should have all six characters available. Experiment with switching — each character's ability solves different obstacles throughout the dungeon.</span></div>
+      </div>
+    </div>
+
+    <!-- FINAL PHASE -->
+    <div class="phase" data-phase="final">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">★</span>
+        <span class="phase-title">FINAL BOSS TOWER · BLACK KNIGHT</span>
+        <span class="dungeon-badge">FINAL</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="step"><span class="step-icon">🏰</span><span class="step-text">The <strong>Final Boss Tower</strong> opens after the Ice Palace. All six characters are available — bring your best understanding of each one's ability.</span></div>
+        <div class="step"><span class="step-icon">⚔</span><span class="step-text">Face the <strong>Black Knight</strong> — the villain who shattered the Magic Crystal. Combat is not the hardest part of this game; reaching the boss with all flags met is the challenge.</span></div>
+        <div class="step"><span class="step-icon">💎</span><span class="step-text">If you have gathered <strong>all crystal fragments</strong>, you will unlock the <strong>secret ending</strong> after defeating the Black Knight — see Secrets section below.</span></div>
+        <div class="note">The game auto-warps you back to town after some dungeons complete. If this happens unexpectedly, it's normal — re-navigate from the village.</div>
+      </div>
+    </div>
+
+  </div><!-- end phases -->
+
+  <!-- CHARACTERS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ CHARACTERS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="note">Characters are unlocked by completing dungeons. Swap freely — most puzzles and blockages have a specific character solution.</div>
+      <div class="char-row"><span class="char-name">HERO</span><span class="char-desc">Starting character. Agile sword combat. Well-rounded — reliable default when no specific ability is needed.</span></div>
+      <div class="char-row"><span class="char-name">ARCHER</span><span class="char-desc">Ranged precision attacks. Good for enemies at a distance or in awkward positions. Unlocked: Forest dungeon.</span></div>
+      <div class="char-row"><span class="char-name">NINJA</span><span class="char-desc">Enhanced jump height. Use to reach elevated platforms and areas the Hero cannot. Unlocked: Ocean dungeon.</span></div>
+      <div class="char-row"><span class="char-name">MAGE</span><span class="char-desc">Reveals hidden objects, doors, and crystal fragments. Use in any area where you suspect something is concealed. Unlocked: Desert temple.</span></div>
+      <div class="char-row"><span class="char-name">BIRD MAN</span><span class="char-desc">Full flight. Required for mountain areas. Go back and re-explore elevated zones after unlocking. Unlocked: Volcano dungeon.</span></div>
+      <div class="char-row"><span class="char-name">FAIRY</span><span class="char-desc">Accesses narrow passages other characters can't fit through. Key for Ice Palace. Unlocked: Sky dungeon.</span></div>
+    </div>
+  </div>
+
+  <!-- TRADING CHAINS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ TRADING CHAINS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="note">Both chains are required for progression. Complete them as you reach each area — backtracking to finish them later wastes time.</div>
+      <div style="font-family:'VT323',monospace;font-size:14px;letter-spacing:2px;color:var(--gb-screen-shadow);margin-bottom:4px;">CHAIN 1 — SUBMARINE ACCESS</div>
+      <div class="trade-chain">
+        <span class="trade-item">Buy Watermelon</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Trade to Akane's Grandfather</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Snorkel</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Give to Mizuki</span><span class="trade-arrow">→</span>
+        <span class="trade-item">✦ Submarine Access</span>
+      </div>
+      <div style="font-family:'VT323',monospace;font-size:14px;letter-spacing:2px;color:var(--gb-screen-shadow);margin-bottom:4px;margin-top:8px;">CHAIN 2 — ICE PALACE ACCESS</div>
+      <div class="trade-chain">
+        <span class="trade-item">Matchbox (Volcano)</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Gift Voucher</span><span class="trade-arrow">→</span>
+        <span class="trade-item">Violin (ocean shop)</span><span class="trade-arrow">→</span>
+        <span class="trade-item">✦ Scarf</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECRETS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ SECRETS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="step"><span class="step-icon">💰</span><span class="step-text"><strong>Infinite money:</strong> Inside Mr. Adventure's house, there is a <strong>breakable wall</strong>. Smash it to find a room that yields unlimited money. Find this early.</span></div>
+      <div class="step"><span class="step-icon">💧</span><span class="step-text"><strong>Water Bottle:</strong> Also found in Mr. Adventure's house. Pick it up — it's used somewhere in progression.</span></div>
+      <div class="step"><span class="step-icon">⛲</span><span class="step-text"><strong>Hidden crystal:</strong> Top of the village fountain. Easy to run past. Grab it on your first visit to the village.</span></div>
+      <div class="step"><span class="step-icon">🔮</span><span class="step-text"><strong>Fortune teller and secret shop</strong> exist somewhere in the world. Keep an eye out — NPCs may hint at their locations.</span></div>
+      <div class="step"><span class="step-icon">🏆</span><span class="step-text"><strong>Secret ending:</strong> Collect <strong>all crystal fragments</strong>, defeat the Black Knight, then return to the village and fully traverse the <strong>Cave of Despair</strong>. Face a giant ghost and meet Mr. Adventure for the true ending.</span></div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ ESSENTIAL TIPS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="step"><span class="step-icon">💬</span><span class="step-text"><strong>Talk to everyone, twice:</strong> Progression gates in this game are often hidden NPC flags. If you're stuck and haven't exhausted dialogue, that's the first thing to try.</span></div>
+      <div class="step"><span class="step-icon">🗺</span><span class="step-text"><strong>No map:</strong> There is no in-game map. Mentally note landmarks as you explore. The red flowers in the Forest of Illusion are the most explicit navigation aid in the game.</span></div>
+      <div class="step"><span class="step-icon">🔍</span><span class="step-text"><strong>Use the Mage constantly:</strong> Any time you're in a new area and suspect something is hidden, swap to the Mage and use their reveal ability. Crystals and doors are frequently concealed.</span></div>
+      <div class="step"><span class="step-icon">💾</span><span class="step-text"><strong>Save often:</strong> Save points are plentiful. Use them. The event flag system can leave you stuck in unexpected ways if you haven't saved recently.</span></div>
+      <div class="step"><span class="step-icon">🔄</span><span class="step-text"><strong>Auto-warp:</strong> Completing some dungeons will automatically warp you back to the village. This is intentional — re-navigate from there.</span></div>
+      <div class="step"><span class="step-icon">💎</span><span class="step-text"><strong>Crystal hunting:</strong> Gather fragments as you go through each area rather than hunting them all at the end. The Mage makes this much easier once unlocked.</span></div>
+    </div>
+  </div>
+
+  <div class="footer">— GATHER THE CRYSTALS — ★ — DEFEAT THE BLACK KNIGHT —</div>
+
+</div>
+
+<script>
+  function togglePhase(header) {
+    const phase = header.parentElement;
+    const body = phase.querySelector('.phase-body');
+    if (phase.classList.contains('collapsed')) {
+      phase.classList.remove('collapsed');
+      body.style.maxHeight = body.scrollHeight + 'px';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 'px';
+      requestAnimationFrame(() => {
+        phase.classList.add('collapsed');
+      });
+    }
+  }
+
+  function toggleTips(header) {
+    const section = header.parentElement;
+    const body = section.querySelector('.tips-body');
+    const arrow = header.querySelector('.toggle-arrow');
+    if (body.style.maxHeight && body.style.maxHeight !== '0px') {
+      body.style.maxHeight = '0px';
+      body.style.paddingTop = '0';
+      body.style.paddingBottom = '0';
+      arrow.style.transform = 'rotate(-90deg)';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 200 + 'px';
+      body.style.paddingTop = '';
+      body.style.paddingBottom = '';
+      arrow.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  // Start all phases collapsed
+  document.querySelectorAll('.phase').forEach(phase => {
+    phase.classList.add('collapsed');
+  });
+
+  // Init tips-body transitions — start collapsed
+  document.querySelectorAll('.tips-body').forEach(body => {
+    body.style.transition = 'max-height 0.3s ease, padding 0.3s ease';
+    body.style.overflow = 'hidden';
+    body.style.maxHeight = '0px';
+    body.style.paddingTop = '0';
+    body.style.paddingBottom = '0';
+    const arrow = body.parentElement.querySelector('.toggle-arrow');
+    if (arrow) arrow.style.transform = 'rotate(-90deg)';
+  });
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/retro-field-guides/sw.js');
+  }
+</script>
+
+</body>
+</html>

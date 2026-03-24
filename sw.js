@@ -1,4 +1,4 @@
-const CACHE = 'field-guides-v2';
+const CACHE = 'field-guides-v3';
 const BASE = '/retro-field-guides';
 
 const PRECACHE = [
@@ -11,6 +11,8 @@ const PRECACHE = [
   BASE + '/links-awakening/index.html',
   BASE + '/super-mario-land/',
   BASE + '/super-mario-land/index.html',
+  BASE + '/pokettohiro/',
+  BASE + '/pokettohiro/index.html',
 ];
 
 self.addEventListener('install', e => {

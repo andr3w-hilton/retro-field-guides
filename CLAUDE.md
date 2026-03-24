@@ -59,3 +59,4 @@ Visual effects: scanline overlay (body::before), pixel noise (body::after), clip
 |------|------|--------|
 | links-awakening | The Legend of Zelda: Link's Awakening (GB, 1993) | Active playthrough |
 | super-mario-land | Super Mario Land (GB, 1989) | Active playthrough |
+| pokettohiro | Pokettohiro (GBC, 2024) | Active playthrough |
