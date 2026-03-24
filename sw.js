@@ -1,13 +1,14 @@
 const CACHE = 'field-guides-v1';
+const BASE = '/retro-field-guides';
 
 const PRECACHE = [
-  '/',
-  '/index.html',
-  '/manifest.json',
-  '/icons/icon-192.svg',
-  '/icons/icon-512.svg',
-  '/links-awakening/',
-  '/links-awakening/index.html',
+  BASE + '/',
+  BASE + '/index.html',
+  BASE + '/manifest.json',
+  BASE + '/icons/icon-192.svg',
+  BASE + '/icons/icon-512.svg',
+  BASE + '/links-awakening/',
+  BASE + '/links-awakening/index.html',
 ];
 
 self.addEventListener('install', e => {
@@ -35,7 +36,7 @@ self.addEventListener('fetch', e => {
         const clone = res.clone();
         caches.open(CACHE).then(c => c.put(e.request, clone));
         return res;
-      }).catch(() => caches.match('/index.html'));
+      }).catch(() => caches.match(BASE + '/index.html'));
     })
   );
 });
