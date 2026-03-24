@@ -693,9 +693,9 @@
     }
   }
 
-  // Set max-height for animation on open phases
-  document.querySelectorAll('.phase-body').forEach(body => {
-    body.style.maxHeight = body.scrollHeight + 'px';
+  // Start all phases collapsed
+  document.querySelectorAll('.phase').forEach(phase => {
+    phase.classList.add('collapsed');
   });
 
   // Init tips-body transitions
