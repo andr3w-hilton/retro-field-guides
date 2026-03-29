@@ -1,4 +1,4 @@
-const CACHE = 'field-guides-v3';
+const CACHE = 'field-guides-v4';
 const BASE = '/retro-field-guides';
 
 const PRECACHE = [
@@ -7,6 +7,8 @@ const PRECACHE = [
   BASE + '/manifest.json',
   BASE + '/icons/icon-192.svg',
   BASE + '/icons/icon-512.svg',
+  BASE + '/super-mario-bros/',
+  BASE + '/super-mario-bros/index.html',
   BASE + '/links-awakening/',
   BASE + '/links-awakening/index.html',
   BASE + '/super-mario-land/',

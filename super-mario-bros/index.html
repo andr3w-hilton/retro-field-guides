@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Super Mario Bros — Field Guide</title>
+<link rel="manifest" href="/retro-field-guides/manifest.json">
+<meta name="theme-color" content="#0f1a0f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black">
+<meta name="apple-mobile-web-app-title" content="Field Guides">
+<link rel="apple-touch-icon" href="/retro-field-guides/icons/icon-192.svg">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=VT323&family=Share+Tech+Mono&display=swap');
+
+  :root {
+    --gb-darkest: #0f1a0f;
+    --gb-dark: #1a3a1a;
+    --gb-mid: #2d6a2d;
+    --gb-light: #5a9e3a;
+    --gb-lighter: #8bcc50;
+    --gb-lightest: #c8e870;
+    --gb-screen-bg: #9bbc0f;
+    --gb-screen-shadow: #306230;
+    --gb-screen-dark: #0f380f;
+    --gb-screen-mid: #8bac0f;
+    --scanline-color: rgba(15, 56, 15, 0.08);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--gb-darkest);
+    min-height: 100vh;
+    font-family: 'Share Tech Mono', monospace;
+    color: var(--gb-screen-dark);
+    padding: 20px;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0px,
+      transparent 3px,
+      var(--scanline-color) 3px,
+      var(--scanline-color) 4px
+    );
+    pointer-events: none;
+    z-index: 1000;
+  }
+
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 999;
+    opacity: 0.4;
+  }
+
+  .screen-wrapper {
+    max-width: 780px;
+    margin: 0 auto;
+    background: var(--gb-screen-bg);
+    border: 6px solid var(--gb-screen-dark);
+    box-shadow:
+      inset 0 0 40px rgba(15,56,15,0.3),
+      0 0 60px rgba(139,204,80,0.15),
+      0 0 120px rgba(139,204,80,0.05),
+      0 8px 32px rgba(0,0,0,0.8);
+    position: relative;
+    padding: 28px 32px 36px;
+    image-rendering: pixelated;
+  }
+
+  .screen-wrapper::before {
+    content: '';
+    position: absolute;
+    inset: -6px;
+    border: 6px solid var(--gb-screen-dark);
+    clip-path: polygon(
+      12px 0%, calc(100% - 12px) 0%,
+      100% 12px, 100% calc(100% - 12px),
+      calc(100% - 12px) 100%, 12px 100%,
+      0% calc(100% - 12px), 0% 12px
+    );
+    pointer-events: none;
+  }
+
+  .game-header {
+    text-align: center;
+    border-bottom: 4px solid var(--gb-screen-dark);
+    padding-bottom: 16px;
+    margin-bottom: 24px;
+    position: relative;
+  }
+
+  .game-header::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: var(--gb-screen-mid);
+  }
+
+  .title-eyebrow {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    letter-spacing: 6px;
+    color: var(--gb-screen-shadow);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 4px;
+  }
+
+  h1 {
+    font-family: 'VT323', monospace;
+    font-size: 52px;
+    color: var(--gb-screen-dark);
+    line-height: 1;
+    text-shadow: 3px 3px 0 var(--gb-screen-shadow);
+    letter-spacing: 2px;
+  }
+
+  .subtitle {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 3px;
+    margin-top: 4px;
+  }
+
+  .pixel-deco {
+    display: flex;
+    justify-content: center;
+    gap: 3px;
+    margin: 10px 0 0;
+  }
+  .pixel-deco span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    background: var(--gb-screen-dark);
+  }
+  .pixel-deco span:nth-child(2) { margin-top: -4px; }
+
+  .phase {
+    margin-bottom: 20px;
+    border: 3px solid var(--gb-screen-dark);
+    background: rgba(15,56,15,0.06);
+    position: relative;
+    animation: fadeIn 0.4s ease both;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(4px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase:nth-child(1) { animation-delay: 0.05s; }
+  .phase:nth-child(2) { animation-delay: 0.08s; }
+  .phase:nth-child(3) { animation-delay: 0.11s; }
+  .phase:nth-child(4) { animation-delay: 0.14s; }
+  .phase:nth-child(5) { animation-delay: 0.17s; }
+  .phase:nth-child(6) { animation-delay: 0.20s; }
+  .phase:nth-child(7) { animation-delay: 0.23s; }
+  .phase:nth-child(8) { animation-delay: 0.26s; }
+
+  .phase-header {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.1s;
+  }
+
+  .phase-header:hover { background: var(--gb-screen-shadow); }
+
+  .phase-num {
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    color: var(--gb-lightest);
+    min-width: 28px;
+  }
+
+  .phase-title {
+    font-family: 'VT323', monospace;
+    font-size: 20px;
+    letter-spacing: 1px;
+    flex: 1;
+  }
+
+  .world-badge {
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    letter-spacing: 1px;
+    background: var(--gb-screen-shadow);
+    color: var(--gb-lightest);
+    padding: 2px 7px;
+    white-space: nowrap;
+  }
+
+  .toggle-arrow {
+    font-size: 14px;
+    transition: transform 0.2s ease;
+    color: var(--gb-screen-mid);
+    margin-left: 4px;
+  }
+
+  .phase.collapsed .toggle-arrow { transform: rotate(-90deg); }
+
+  .phase-body {
+    padding: 12px 14px 14px;
+    display: grid;
+    gap: 10px;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+  }
+
+  .phase.collapsed .phase-body {
+    max-height: 0 !important;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  .level-group {
+    border-left: 3px solid var(--gb-screen-shadow);
+    padding-left: 10px;
+    margin-top: 4px;
+  }
+
+  .level-label {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--gb-screen-shadow);
+    margin-bottom: 6px;
+  }
+
+  .step {
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    font-size: 12px;
+    line-height: 1.6;
+  }
+
+  .step-icon {
+    flex-shrink: 0;
+    font-size: 14px;
+    line-height: 1.4;
+  }
+
+  .step-text { flex: 1; }
+
+  .boss-block {
+    background: var(--gb-screen-dark);
+    color: var(--gb-screen-bg);
+    padding: 10px 12px;
+    margin-top: 4px;
+  }
+
+  .boss-label {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--gb-lightest);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .boss-block .step {
+    font-size: 12px;
+    color: var(--gb-screen-bg);
+  }
+
+  .note {
+    font-size: 11px;
+    line-height: 1.6;
+    padding: 6px 10px;
+    border-left: 3px solid var(--gb-screen-shadow);
+    background: rgba(15,56,15,0.08);
+  }
+
+  .note::before {
+    content: '! ';
+    font-family: 'VT323', monospace;
+    font-size: 16px;
+    color: var(--gb-screen-dark);
+  }
+
+  .warp-block {
+    background: var(--gb-screen-shadow);
+    color: var(--gb-screen-bg);
+    padding: 10px 12px;
+    margin-top: 4px;
+  }
+
+  .warp-label {
+    font-family: 'VT323', monospace;
+    font-size: 15px;
+    letter-spacing: 2px;
+    color: var(--gb-lightest);
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  .warp-block .step {
+    font-size: 12px;
+    color: var(--gb-screen-bg);
+  }
+
+  .tips-section {
+    margin-top: 24px;
+    border: 3px solid var(--gb-screen-dark);
+    animation: fadeIn 0.4s 0.3s ease both;
+  }
+
+  .tips-header {
+    background: var(--gb-screen-shadow);
+    color: var(--gb-screen-bg);
+    padding: 7px 14px;
+    font-family: 'VT323', monospace;
+    font-size: 22px;
+    letter-spacing: 2px;
+  }
+
+  .tips-body {
+    padding: 12px 14px;
+    display: grid;
+    gap: 8px;
+  }
+
+  .powerup-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    align-items: center;
+  }
+
+  .pu-item {
+    font-family: 'VT323', monospace;
+    font-size: 14px;
+    background: var(--gb-screen-dark);
+    color: var(--gb-lightest);
+    padding: 2px 8px;
+    white-space: nowrap;
+  }
+
+  .pu-desc {
+    font-size: 11px;
+    line-height: 1.5;
+    flex: 1;
+    min-width: 180px;
+  }
+
+  .divider {
+    height: 3px;
+    background: repeating-linear-gradient(
+      to right,
+      var(--gb-screen-dark) 0px,
+      var(--gb-screen-dark) 4px,
+      transparent 4px,
+      transparent 8px
+    );
+    margin: 4px 0;
+  }
+
+  .footer {
+    text-align: center;
+    margin-top: 20px;
+    font-family: 'VT323', monospace;
+    font-size: 13px;
+    color: var(--gb-screen-shadow);
+    letter-spacing: 2px;
+    opacity: 0.7;
+  }
+</style>
+</head>
+<body>
+
+<div class="screen-wrapper">
+
+  <div class="game-header">
+    <a href="/retro-field-guides/" style="font-family:'VT323',monospace;font-size:13px;letter-spacing:3px;color:var(--gb-screen-shadow);text-decoration:none;display:block;margin-bottom:8px;opacity:0.8;">◀ ALL GUIDES</a>
+    <span class="title-eyebrow">★ FIELD GUIDE ★</span>
+    <h1>SUPER MARIO BROS</h1>
+    <div class="subtitle">NES · 1985</div>
+    <div class="pixel-deco">
+      <span></span><span></span><span></span>
+    </div>
+  </div>
+
+  <div id="phases">
+
+    <!-- WORLD 1 -->
+    <div class="phase" data-phase="1">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">01</span>
+        <span class="phase-title">WORLD 1</span>
+        <span class="world-badge">GRASS LAND</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">The tutorial world. Learn the controls and build a coin/life buffer here before pushing on. Don't skip the warp zone in 1-2 if you want to jump ahead.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 1-1 —</div>
+          <div class="step"><span class="step-icon">🍄</span><span class="step-text">The very first ? block contains a <strong>Super Mushroom</strong>. Get it — being Super Mario is critical for surviving hits and breaking bricks.</span></div>
+          <div class="step"><span class="step-icon">🌿</span><span class="step-text"><strong>Hidden 1-UP:</strong> Just before the staircase to the flagpole, there's an invisible block one tile above and one tile to the right of the topmost brick in the flat run. Hit it for a 1-UP mushroom.</span></div>
+          <div class="step"><span class="step-icon">🏁</span><span class="step-text"><strong>Flagpole:</strong> A full running jump at the last moment to hit the very top = 5000 points. Hitting midway = 2000. Bottom = 100. Always aim high.</span></div>
+        </div>
+
+        <div class="level-group">
+          <div class="level-label">— 1-2 (UNDERGROUND) —</div>
+          <div class="step"><span class="step-icon">🪙</span><span class="step-text"><strong>Coin heaven:</strong> Jump on top of the first pipe — the bricks above it lead to a bonus coin area. Exit from the right side to land further ahead in the level.</span></div>
+          <div class="step"><span class="step-icon">🌀</span><span class="step-text"><strong>Warp zone to Worlds 2, 3 or 4:</strong> At the end of the level, instead of going down the exit pipe, jump onto the pipe and walk right past the ceiling. You'll find three warp pipes. Left = World 2, Middle = World 3, Right = World 4.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (GOOMBA)</span>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text"><strong>Easiest method:</strong> Run under Bowser and hit the axe at the end of the bridge to drop him into the lava. Works on every castle.</span></div>
+          <div class="step"><span class="step-icon">🔥</span><span class="step-text"><strong>Fire Flower method:</strong> 5 fireballs reveal the true form — in World 1 it's a Goomba wearing a Bowser disguise.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 2 -->
+    <div class="phase" data-phase="2">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">02</span>
+        <span class="phase-title">WORLD 2</span>
+        <span class="world-badge">DESERT</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Night and underwater levels. Introduces swimming in 2-2 — hold the button to swim up, release to sink. Bloopers and Cheep Cheeps are the main threats.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 2-2 (UNDERWATER) —</div>
+          <div class="step"><span class="step-icon">🐙</span><span class="step-text"><strong>Bloopers</strong> (squid) chase you — swim in large arcs to shake them. They follow your vertical position, so swim high then quickly dip low.</span></div>
+          <div class="step"><span class="step-icon">🐟</span><span class="step-text"><strong>Cheep Cheeps</strong> scroll in from the right — keep moving forward and maintain a steady height to dodge the patterns.</span></div>
+          <div class="step"><span class="step-icon">🏅</span><span class="step-text">Fire Flowers are useless underwater — prioritise reaching the exit over fighting anything.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (KOOPA TROOPA)</span>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text">Same axe strategy. Jump over the Hammer Bros in the castle approach if you're not confident — they can be brutal if you're small Mario.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 3 -->
+    <div class="phase" data-phase="3">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">03</span>
+        <span class="phase-title">WORLD 3</span>
+        <span class="world-badge">WATER LAND</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Treetop and bridge levels with moving platforms and Cheep Cheep rivers. 3-1 has a famous infinite 1-UP trick. Difficulty starts ramping up from here.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 3-1 (INFINITE 1-UP TRICK) —</div>
+          <div class="step"><span class="step-icon">⭐</span><span class="step-text">Near the end of 3-1, there's a staircase of steps with a Koopa Troopa on top. Kick its shell into the steps — if Mario lands perfectly on the bouncing shell repeatedly without touching the ground, each hit scores an extra life. With practice, easy to farm 50+ lives.</span></div>
+        </div>
+
+        <div class="level-group">
+          <div class="level-label">— 3-3 · 3-4 —</div>
+          <div class="step"><span class="step-icon">🌉</span><span class="step-text">Bridge levels with gaps over water. Moving platforms require patience — wait for the rhythm before jumping. Falling behind the scroll means death.</span></div>
+          <div class="step"><span class="step-icon">🐟</span><span class="step-text">Schools of Cheep Cheeps jump out of the water in set patterns. Learn the timing — they can leap surprisingly high.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (BUZZY BEETLE)</span>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text">Axe at the end of the bridge. The castle itself is fairly linear — the main hazard is the lava pits before the bridge.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 4 -->
+    <div class="phase" data-phase="4">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">04</span>
+        <span class="phase-title">WORLD 4</span>
+        <span class="world-badge">BIG ISLAND</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Giant enemies and the second major warp zone. 4-2 contains warps to Worlds 5, 6, 7, and 8 — the most useful shortcuts in the game. 4-4 is a maze castle.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 4-1 —</div>
+          <div class="step"><span class="step-icon">🔨</span><span class="step-text"><strong>Hammer Bros</strong> make their first appearance. They throw hammers in arcs — the safest approach is to run under them quickly while they're throwing high, or hit from below with a Fire Flower. Do not fight them without a power-up.</span></div>
+        </div>
+
+        <div class="level-group">
+          <div class="level-label">— 4-2 (UNDERGROUND) —</div>
+          <div class="step"><span class="step-icon">🌱</span><span class="step-text"><strong>Warp to World 5:</strong> Shortly after the first moving platforms, hit the hidden block above the last brick platform to sprout a beanstalk. Climb it to a cloud level. Walk right and take the exit pipe — it warps to World 5.</span></div>
+          <div class="step"><span class="step-icon">🌀</span><span class="step-text"><strong>Warp to Worlds 6, 7 or 8:</strong> Near the end of the level, use the same ceiling-crawl trick as 1-2 — jump on the exit pipe and walk right past the wall. Three pipes: Left = World 6, Middle = World 7, Right = World 8.</span></div>
+          <div class="step"><span class="step-icon">⚠</span><span class="step-text">You can only use one warp per run through 4-2. Beanstalk = World 5. Ceiling exit = choose 6, 7 or 8.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (SPINEY) · MAZE</span>
+          <div class="step"><span class="step-icon">🗺</span><span class="step-text"><strong>4-4 is a looping maze.</strong> Take the <strong>upper path</strong> at each fork to progress. Taking lower paths loops you back to the start. After the correct path you'll reach the bridge and axe.</span></div>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text">Axe as usual — this fake Bowser is a Spiney. The maze is the real challenge, not the boss.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 5 -->
+    <div class="phase" data-phase="5">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">05</span>
+        <span class="phase-title">WORLD 5</span>
+        <span class="world-badge">SKY LAND</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Difficulty noticeably increases. More Hammer Bros, Bullet Bills, and tighter platforming. Stock lives before arriving here if you didn't use the 3-1 trick.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 5-1 · 5-2 · 5-3 —</div>
+          <div class="step"><span class="step-icon">💣</span><span class="step-text"><strong>Bullet Bills</strong> fire from launchers — they move slowly but are hard to dodge in tight corridors. Jump over them or hit the launchers from below to stop them temporarily.</span></div>
+          <div class="step"><span class="step-icon">🔨</span><span class="step-text">5-3 has multiple <strong>Hammer Bros</strong> in sequence — by far the hardest platforming encounter so far. Fire Flower strongly recommended. If you have none, sprint and pray.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (LAKITU)</span>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text">Axe method. 5-4 castle is straightforward — the approach levels are the hard part in World 5.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 6 -->
+    <div class="phase" data-phase="6">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">06</span>
+        <span class="phase-title">WORLD 6</span>
+        <span class="world-badge">ICY WATERS</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Water and night levels again but harder. 6-3 is a brutal Bullet Bill gauntlet. Enemies are faster and more numerous than their World 2/3 equivalents.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 6-3 (BULLET BILL GAUNTLET) —</div>
+          <div class="step"><span class="step-icon">💣</span><span class="step-text">Continuous Bullet Bill fire from both sides. <strong>Keep moving</strong> — standing still is death. Run forward and jump over incoming Bills rather than trying to dodge back.</span></div>
+          <div class="step"><span class="step-icon">🏃</span><span class="step-text">Holding B to run is essential here — the speed advantage lets you clear gaps between launcher volleys. Don't slow down.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (BLOOPER)</span>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text">Axe method. The 6-4 castle has lava pits and moving platforms — take your time on the approach.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 7 -->
+    <div class="phase" data-phase="7">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">07</span>
+        <span class="phase-title">WORLD 7</span>
+        <span class="world-badge">PIPE LAND</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">Pipe mazes and Piranha Plants everywhere. One of the most disorienting worlds. 7-4 is a second maze castle — even trickier than 4-4.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 7-1 · 7-2 · 7-3 —</div>
+          <div class="step"><span class="step-icon">🌿</span><span class="step-text"><strong>Piranha Plants</strong> pop up from pipes on a timer — pause before each pipe and wait for it to retract before passing. Never stand directly on top of a pipe.</span></div>
+          <div class="step"><span class="step-icon">💧</span><span class="step-text">7-2 is underwater again. Same rules as before — arc-swim to lose Bloopers, keep moving to dodge Cheep Cheep schools.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">CASTLE — FAKE BOWSER (HAMMER BRO) · MAZE</span>
+          <div class="step"><span class="step-icon">🗺</span><span class="step-text"><strong>7-4 maze:</strong> At the first fork go <strong>middle</strong>, at the second go <strong>upper</strong>. Wrong paths loop you back. The correct route leads to the bridge.</span></div>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text">This fake Bowser is a Hammer Bro — axe method is strongly recommended here. Getting hit by hammers near the lava is unforgiving.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WORLD 8 -->
+    <div class="phase" data-phase="8">
+      <div class="phase-header" onclick="togglePhase(this)">
+        <span class="phase-num">08</span>
+        <span class="phase-title">WORLD 8</span>
+        <span class="world-badge">DARK LAND</span>
+        <span class="toggle-arrow">▼</span>
+      </div>
+      <div class="phase-body">
+        <div class="note">The final world. No mercy — Hammer Bros everywhere, brutal platforming, and the real Bowser at the end. Enter with maximum lives, Fire Flower if possible.</div>
+
+        <div class="level-group">
+          <div class="level-label">— 8-1 · 8-2 · 8-3 —</div>
+          <div class="step"><span class="step-icon">🔨</span><span class="step-text">8-1 opens with a wall of Hammer Bros. Sprint past them — trying to fight is a trap. Take the hits if you're Super Mario and just get through.</span></div>
+          <div class="step"><span class="step-icon">💣</span><span class="step-text">8-2 and 8-3 combine Bullet Bills, Hammer Bros, and tight platforms. Slow down at gaps, sprint through enemy clusters. Use every life you've saved.</span></div>
+          <div class="step"><span class="step-icon">🎰</span><span class="step-text">There are no warp zones in World 8. If you die here, you restart at 8-1. Don't waste lives on risks.</span></div>
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="boss-block">
+          <span class="boss-label">FINAL BOSS — THE REAL BOWSER</span>
+          <div class="step"><span class="step-icon">🪓</span><span class="step-text"><strong>Axe method still works</strong> — and is the safest approach. Run under Bowser when he jumps (or duck under his fireballs), reach the axe, done. He fires hammers in 8-4 unlike earlier fakes.</span></div>
+          <div class="step"><span class="step-icon">🔥</span><span class="step-text"><strong>Fire Flower method:</strong> 5 fireballs kill him outright — he's the actual Bowser, no disguise reveal. The fireballs stun him briefly, giving you time to reposition.</span></div>
+          <div class="step"><span class="step-icon">🗺</span><span class="step-text"><strong>8-4 maze:</strong> At the pipe sections — take <strong>pipe 1</strong> (the first one you encounter after the underwater section), then proceed straight to the castle. Wrong pipes loop you through the underwater section again.</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div><!-- end phases -->
+
+  <!-- WARP ZONES -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ WARP ZONES</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="step"><span class="step-icon">🌀</span><span class="step-text"><strong>1-2 → Worlds 2, 3 or 4:</strong> At the end of 1-2, jump on top of the exit pipe and walk right through the wall. Three pipes — left = 2, middle = 3, right = 4. Skip straight to World 4 for the fastest path to the later game.</span></div>
+      <div class="step"><span class="step-icon">🌱</span><span class="step-text"><strong>4-2 → World 5:</strong> Hit the hidden block above the last platform before the second moving platform section to grow a beanstalk. Climb it to cloud level, exit from the right.</span></div>
+      <div class="step"><span class="step-icon">🌀</span><span class="step-text"><strong>4-2 → Worlds 6, 7 or 8:</strong> Same ceiling-crawl trick at the end of 4-2 — three pipes past the exit. Left = 6, middle = 7, right = 8. Use this to jump directly to World 8 for a full game skip.</span></div>
+      <div class="step"><span class="step-icon">⚠</span><span class="step-text"><strong>Note:</strong> Warping skips you straight to that world but you don't need to clear the skipped worlds for the ending. The only penalty is missing the flagpole and coin points along the way.</span></div>
+    </div>
+  </div>
+
+  <!-- POWERUPS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ POWER-UPS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="powerup-row">
+        <span class="pu-item">SUPER MUSHROOM</span>
+        <span class="pu-desc">Grow to Super Mario. Can take one hit before shrinking. Breaks brick blocks. Always grab these — being small Mario in Worlds 6-8 is extremely punishing.</span>
+      </div>
+      <div class="powerup-row">
+        <span class="pu-item">FIRE FLOWER</span>
+        <span class="pu-desc">Grants Fire Mario. Throw fireballs with B. Bounces along the ground and kills most enemies in one hit. 5 fireballs defeat Bowser outright. Most powerful item in the game — protect it at all costs.</span>
+      </div>
+      <div class="powerup-row">
+        <span class="pu-item">SUPER STAR</span>
+        <span class="pu-desc">Brief invincibility. Kill enemies on contact for escalating points: 100, 200, 400, 800, 1000, 2000, 4000, 8000 — then extra lives for every enemy after. Rare. Use aggressively when found.</span>
+      </div>
+      <div class="powerup-row">
+        <span class="pu-item">1-UP MUSHROOM</span>
+        <span class="pu-desc">Extra life. Found in hidden invisible blocks. The most reliable hidden 1-UP is in 1-1 near the flagpole staircase.</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TIPS -->
+  <div class="tips-section">
+    <div class="tips-header" onclick="toggleTips(this)" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;">
+      <span>▸ ESSENTIAL TIPS</span>
+      <span class="toggle-arrow" style="color:var(--gb-screen-bg);font-size:16px;">▼</span>
+    </div>
+    <div class="tips-body">
+      <div class="step"><span class="step-icon">🏃</span><span class="step-text"><strong>Hold B to run:</strong> Running jump is the most important skill. Many gaps require a running start. Also essential for escaping enemy clusters in Worlds 6-8.</span></div>
+      <div class="step"><span class="step-icon">🐢</span><span class="step-text"><strong>Koopa shells:</strong> Kick a shell into a line of enemies for chain kills and escalating points — same multiplier table as the star. Also the basis of the 3-1 infinite 1-UP trick.</span></div>
+      <div class="step"><span class="step-icon">🏁</span><span class="step-text"><strong>Flagpole scoring:</strong> Top of pole = 5000 pts, two-thirds = 2000, one-third = 1000, bottom = 100. A full sprint and late jump consistently hits the top.</span></div>
+      <div class="step"><span class="step-icon">⏱</span><span class="step-text"><strong>Time bonus:</strong> Remaining seconds × 50 points are added at the flagpole. Don't dawdle — but don't rush into a death either. Levels have a 400-second timer.</span></div>
+      <div class="step"><span class="step-icon">💀</span><span class="step-text"><strong>Continue:</strong> On the Game Over screen, hold A and press Start to continue from the beginning of the world you died in (not World 1). Saves you replaying the whole game after a late-world death.</span></div>
+      <div class="step"><span class="step-icon">🔁</span><span class="step-text"><strong>Second quest:</strong> Beat the game to unlock a harder mode — faster enemies, Goombas replaced by Buzzy Beetles, and trickier layouts. The game loops up to three times with escalating difficulty.</span></div>
+    </div>
+  </div>
+
+  <div class="footer">— MUSHROOM KINGDOM — ★ — RESCUE PEACH —</div>
+
+</div>
+
+<script>
+  function togglePhase(header) {
+    const phase = header.parentElement;
+    const body = phase.querySelector('.phase-body');
+    if (phase.classList.contains('collapsed')) {
+      phase.classList.remove('collapsed');
+      body.style.maxHeight = body.scrollHeight + 40 + 'px';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 40 + 'px';
+      requestAnimationFrame(() => {
+        phase.classList.add('collapsed');
+      });
+    }
+  }
+
+  function toggleTips(header) {
+    const section = header.parentElement;
+    const body = section.querySelector('.tips-body');
+    const arrow = header.querySelector('.toggle-arrow');
+    if (body.style.maxHeight && body.style.maxHeight !== '0px') {
+      body.style.maxHeight = '0px';
+      body.style.paddingTop = '0';
+      body.style.paddingBottom = '0';
+      arrow.style.transform = 'rotate(-90deg)';
+    } else {
+      body.style.maxHeight = body.scrollHeight + 200 + 'px';
+      body.style.paddingTop = '';
+      body.style.paddingBottom = '';
+      arrow.style.transform = 'rotate(0deg)';
+    }
+  }
+
+  // Start all phases collapsed
+  document.querySelectorAll('.phase').forEach(phase => {
+    phase.classList.add('collapsed');
+  });
+
+  // Init tips-body transitions — start collapsed
+  document.querySelectorAll('.tips-body').forEach(body => {
+    body.style.transition = 'max-height 0.3s ease, padding 0.3s ease';
+    body.style.overflow = 'hidden';
+    body.style.maxHeight = '0px';
+    body.style.paddingTop = '0';
+    body.style.paddingBottom = '0';
+    const arrow = body.parentElement.querySelector('.toggle-arrow');
+    if (arrow) arrow.style.transform = 'rotate(-90deg)';
+  });
+</script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('/retro-field-guides/sw.js');
+  }
+</script>
+
+</body>
+</html>

@@ -57,6 +57,7 @@ Visual effects: scanline overlay (body::before), pixel noise (body::after), clip
 
 | Slug | Game | Status |
 |------|------|--------|
-| links-awakening | The Legend of Zelda: Link's Awakening (GB, 1993) | Active playthrough |
+| super-mario-bros | Super Mario Bros (NES, 1985) | Active playthrough |
 | super-mario-land | Super Mario Land (GB, 1989) | Active playthrough |
+| links-awakening | The Legend of Zelda: Link's Awakening (GB, 1993) | Active playthrough |
 | pokettohiro | Pokettohiro (GBC, 2024) | Active playthrough |
